@@ -1,0 +1,290 @@
+
+
+
+<Linux Ubuntu 18.04 Server 사용>
+
+
+
+~$ 일반 사용자
+~# 관리자 (root)
+
+su - root    (switch user)	계정 전환
+sudo su - root   (superuser do switch user - root)	관리자 권한으로 계정 전환
+logout	로그아웃 (관리자 계정일시 일반 계정으로)
+
+
+
+
+<리눅스 파일 시스템>
+
+/ 루트 디렉토리
+
+bin/
+boot/
+dev/
+etc/
+home/
+media/
+tmp/
+mnt/
+sbin/
+sys/
+usr/
+var/
+
+윈도우와 비교하면 
+bin/system   c:/windows 가면 있는 녀석들
+home/사용자계정폴더/내문서폴더들   사용자 계정에 따라 다르게 저장되는 애들
+media/cd-ROM, USB, C:, D: ... 외장장치및 드라이브들
+etc/registry  regedit 하면 나오는 설치된 app 외부설정이 모여있는 그녀석들임
+
+
+ex)
+home/사용자계정1/  bin/, etc/, tmp/, var/
+home/사용자계정2/  bin/, etc/, tmp/, var/
+
+
+본래는 외장장치 및 드라이브들은 mnt/ (mount) 폴더에 넣어 썼었지만, 현재는 media 폴더에 넣어서 사용하기로 함. 삽입한 외장장치나 드라이브를 찾고싶으면 media 폴더와 mnt 폴더 뒤져보면 됨 (windows는 그냥 루트디렉토리에서 바로 새로운 디렉토리로 파생되지만 unix/linux는 다름)
+
+
+bin/	binary 폴더 리눅스 전체에서 사용하는 바이너리 파일들
+sbin/	systembinary 관리자 계정이 쓰는 bin 폴더
+sys/	system 설정 폴더
+tmp/	임시 폴더
+usr/	윈도우의 Program Files 폴더임 (프로그램 설치하는 곳)
+var/	프로그램 실행 중 만들어지는 데이터(값) 들을 저장하는 디렉토리
+etc/registry	위대로 사용하고 프로그램 외부설정은 여기 두면됨
+
+
+
+
+<파일 경로와 순회하기>
+
+
+../	상대경로
+/	절대경로
+
+
+cd / 	change directory root	디렉토리를 변경
+ls	current directory's list	디렉토리 목록 나열
+ls -l	current directory's list -longType	디렉토리 목록 자세히 나열
+pwd	print working directory	현재 디렉토리 경로 출력
+
+
+ex)
+cd ../		부모 디렉토리로 이동
+cd ./var		ls의 var 디렉토리로 이동
+cd /usr/myapp/var		절대 경로로 이동
+
+myaccount@server:~$	~ 는 현재 계정의 home 디렉토리를 뜻한다
+myaccount@server:/$	/ 는 현재 디렉토리를 뜻한다
+
+myaccount@server:~$ pwd
+/home/account
+cd ~ 을 하면 바로 현재 계정의 home 디렉토리로 갈 수 있음
+
+ls workspace/	workspace 디렉토리의 list 보기
+clear	shell 화면 내용 지우기
+man ls	list 메뉴얼 보기
+
+
+tip) 디렉토리나 파일명 중 일부를 치고 tab키를 누르면 자동완성 기능이 작동함
+동일한 파일명이나 디렉토리명이 존재할 시 tab키를 두번 누르면 자동완성 목록이 출력됨
+
+
+
+
+<파일 관리 명령어>
+
+
+mkdir	디렉토리 생성
+rmdir	디렉토리 삭제
+touch	빈 파일 생성
+mv	파일 이동 / 변경
+rm	파일 삭제
+cp	파일 복사
+
+rm -r	remove -recursive 재귀함수 옵션
+삭제하려는 디렉토리의 디렉토리와 파일을 최하위 부터 전부 삭제한다
+
+rm -i	remove -interactive 상호작용 옵션
+삭제하려는 파일을 삭제하겠냐는 재확인 구문을 띄워줌 (rm -ri 등으로 사용)
+
+
+ex)
+mv bin aa	bin을 aa라는 이름으로 변경
+touch test.txt	text.txt 파일 생성
+mv test.txt workspace/	text.txt 파일을 workspace 디렉토리로 이동
+rm -ri aa		aa 디렉토리와 하위 파일 전부 삭제
+rm -ri aa		aa 디렉토리와 하위 파일 전부 삭제 (최하위 파일부터 재확인 입력구문 출력)
+cp test.txt test.cpy		test.txt를 test.cpy로 복사
+
+
+
+
+<파일 편집 및 관리>
+
+
+어차피 IDE 환경에서 개발하니 굳이 쓸 필요는 없지만 linux 원격 서버환경에서 간단한 외부 설정파일을 편집해야 하는 경우 조금 알아두면 좋음
+
+
+
+파일 편집기
+
+VI, GNU nano, Emacs, ed/ex
+
+
+VI	기본 편집기 (메모장)
+
+vi hello.java	hello.java를 vi 편집기로 실행
+초기 상태는 명령 대기 상태 i, a, o 등의 명령키를 사용해 편집모드로 들어갈 수 있다
+i를 누르면 하단에 -- INSERT -- 상태가 뜨며 편집 모드로 들어간다
+esc 키를 통해 편집을 마치고 명령 대기 상태로 이동할 수 있다
+명령 대기 상태에서 :q 명령어를 통해 편집기를 닫을 수 있다
+:w 명령어를 통해 편집 상태를 저장할 수 있다
+:wq	저장하고 종료
+
+커서 조작 (명령 대기 상태)
+h 왼쪽
+j 아래쪽
+k 위쪽
+L 오른쪽
+
+o를 누르면 커서 위치 새로운 라인에서 편집 모드를 시작한다
+a는 커서의 현재 위치 바로 뒤에서 편집 모드를 시작한다
+
+명령 대기 상태에서 커서를 둔 위치에 yy, yw를 통해 한줄 복사나 word 복사를 할 수 있다
+p명령어를 사용해 붙여넣는다
+(yl은 letter 복사 문자 하나를 복사함)
+
+
+
+GNU nano	기본 편집기2
+
+실행 명령어
+nano hello.java
+editor hello.java
+
+사용 명령어들은 편집기 하단에 전부 나온다
+^ 는 CTRL 키 (^G는 컨트롤+G)
+M- 는 ALT 키
+(help 메뉴에 가보면 설명 다 적혀있음)
+
+
+
+
+<파일 찾기와 파일 정보 확인>
+
+
+find, file, cmp, cat, head, tail, whic
+
+
+find ./ -name *.java		현재 디렉토리에서 이름으로 java 확장자인 파일들 찾기
+find . -name *.java -size +1c		현재 디렉토리에서 java 확장자이고 1바이트 이상인 파일들 찾기 (/생략가능)
+man find		(도움말)
+
+
+cat hello.java	hello.java 파일 미리보기 (리더기)
+
+
+head -n2 hello.java		hello.java 파일 앞 2줄 미리 보기
+
+
+tail -n2 hello.java		hello.java 파일 뒤 2줄 미리 보기
+
+
+grep class hello.java	hello.java에서 class 문자가 포함된 줄 찾기
+grep "Hello Li" hello.java	띄어쓰기 등이 포함되어 있을 때는 큰따옴표로 감싸줌
+grep -i "hello Li" hello.java	-ignore 옵션 (소대문자 구분없이 찾기)
+grep --help	(도움말)
+
+
+ls hello?.java		앞에 hello가 붙는 java 파일 찾기
+ls hello[12].java		hello1, hello2 java 파일 찾기
+(정규식 사용하는 것처럼 찾을 수 있다)
+
+
+cmp hello.java hello1.java		hello.java와 hello1.java의 차이점 찾기
+>> hello.java hello1.java differ: byte 97, line 3
+
+
+diff hello.java hello1.java		hello.java와 hello1.java의 차이점 찾기
+>> 3c3
+<	System.out.println("hello linus");
+---
+>	System.out.println("hello linus1");
+
+
+file hello		hello의 파일 정보 확인
+>> hello: C++ source, ASDCII text
+(hello의 java 확장자를 지워서 소스 정보가 명확하게 나오진 않는다)
+
+
+
+
+<유용한 명령어>
+
+
+history, piping, redirect, grep, more, less
+
+
+history			현재까지 사용한 명령어 인덱스 목록화 출력
+!인덱스번호		해당 인덱스 번호의 명령어 재사용
+(화살표 위키와 아래키를 자주 사용해서 그리 자주 쓰진 않음)
+
+
+redirect			파일로 출력하는 명령어 ( >, >> 로 사용한다 )
+history > test		history 내역을 test 파일로 만든다
+echo "hello" > test		문자열 hello를 출력하지 않고 test 파일로 만든다
+echo "okay" >> test	test 파일 속 문자열 hello 뒤에 okay 문자열을 추가한다
+(echo는 뒤에오는 명령어를 콘솔창에 바로 출력해주는 명령어)
+
+
+piping			실행결과를 전달하는 명령어 ( | 로 사용한다 )
+cat test | grep he		test를 출력하는 내용을 출력하지 않고 입력에 넣어 he 문자를 찾는다
+ls -l | less			리스트를 전달해 less 목록으로 띄운다 (화살표로 이동가능)
+ls -l | more		리스트를 전달해 more 목록으로 띄운다 (Q를 눌러 빠져나올 수 있다)
+cat test | sort -r		test의 내용을 역정렬해서 출력
+cat test | sort -r | grep el
+
+
+시퀀셜 커맨드 사용하기
+touch test1; echo "okay~" >> test1; cat test1		명령어 한줄로 여러 명령어 실행하기 ( ; 로 나누어 사용 )
+test1 파일 생성 후 okay~ 문자열을 test1 파일에 추가하고 test1의 내용을 출력
+
+
+
+
+<파일 압축 관리>
+
+
+파일 압축 방법 : tar (Tape ARchive) + zip
+
+
+압축하기
+tar -cf name.tar a b c	tar -zcf name.tar.gz a b c
+
+압축풀기
+tar -xvf name.tar		tar -zxvf name.tar.gz
+
+
+명령어 옵션
+-f	파일 이름을 지정
+-c	파일을 tar로 묶음	
+-x	tar 압축을 풂
+-v	내용을 자세히 출력
+-z	gzip으로 압축하거나 해제함
+-t	목록 출력
+-p	파일 권한을 저장
+-C	경로를 지정
+
+
+ex)
+tar -cf test.tar *		현재 디렉토리의 모든 파일 묶기
+tar -cf test.tar H*.java	현재 디렉토리의 H로 시작하는 모든 java파일 묶기
+tar -zcf test.tar.gz *	현재 디렉토리의 모든 파일 압축
+tar -zxvf test.tar.gz		test.tar.gz 압축해제하면서 내용출력
+
+
+tar는 압축을 하지 않고 묶기만 할 시 파일사이즈가 오히려 커진다
+때문에 -z 옵션은 기본으로 가지고 간다
