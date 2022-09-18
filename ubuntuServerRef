@@ -288,3 +288,781 @@ tar -zxvf test.tar.gz		test.tar.gz 압축해제하면서 내용출력
 
 tar는 압축을 하지 않고 묶기만 할 시 파일사이즈가 오히려 커진다
 때문에 -z 옵션은 기본으로 가지고 간다
+
+
+
+
+
+<jdk 8 다운로드>
+
+
+웹브라우저가 없으므로 wget 명령어를 사용해서 다운로드 한다
+다운로드 원하는 디렉토리로 이동
+
+
+2020년 9월 19일 기준 Linux용 Java SE Development Kit 8u261 다운로드 명령
+
+wget -c --no-cookies --no-check-certificate --header "Cookie: oraclelicense=accept-securebackup-cookie" https://javadl.oracle.com/webapps/download/GetFile/1.8.0_261-b12/a4634525489241b9a9e1aa73d9e118e6/linux-i586/jdk-8u261-linux-x64.tar.gz
+
+
+
+<wget: unable to resolve host address 에러시 해결법>
+
+방법1) resolv.conf 에 구글DNS (nameserver 8.8.8.8) 추가
+
+
+cd /                                           <이렇게 입력해서 최상위 디렉토리로 간 이후에>
+sudo vi /etc/resolv.conf       <이렇게 resolv.conf 파일을 열었고 그러면 내용이 뜨는데
+                                                    그 안에 nameserver 127.0.0.53 이 있더라구요>
+i                                                 < i키 눌러서 insert 모드로 바꾸고>
+방향키조작                              <nameserver 127.0.0.53 밑에 줄로 이동>
+nameserver 8.8.8.8                <nameserver 8.8.8.8을 입력하면 8.8.8.8에 보라색글씨 처리됨>
+esc                                            <이제 저장하고 나가야겠죠>
+:w                                               <저장>
+:q                                                <나가기>
+
+
+방법2) wget 에 --nocheck-certificate 추가하는 방법
+wget --nocheck-certificate url 입력
+
+
+
+다운로드 완료 후 압축해제
+
+tar -zxvf jdk-8u... .tar.gz
+
+
+기존에 윈도우 cmd에서 사용하는 것처럼 사용하려면 (ex. java -version) 리졸빙 에러가 발생한다
+(가장 먼저 본쉘에서 명령어를 찾고 없으면 환경변수에서 찾고 없으면 리졸빙 에러가 발생)
+Linux 환경변수 설정 or 링크파일로 실행파일 리졸빙 or 사용할 때마다 일일히 경로 적어주기 중 하나를 해줘야 한다
+
+
+환경변수 PATH 보기)
+echo $PATH
+
+링크파일로 실행파일 리졸빙 하기)
+환경변수 등록되어 있는 bin 폴더 같은 곳에 java 또는 javac 사용할 파일 링크파일 만들기
+(ex. home/계정/bin/java.ln)
+
+사용할 때마다 앞에 경로 적어주기)
+jdk 압축 푼 bin 디렉토리$ ./java -version
+
+
+
+
+<링크 파일 만들기>
+
+
+Symbolic Link 파일과 Hard Link 파일로 만들 수 있다
+Symbolic Link 파일은 윈도우로 치면 바로가기 파일이다
+Hard Link는 하나의 값을 가진 동일한 메모리 주소를 참조하는 별칭 파일처럼 사용한다
+(포인터 같은 녀석임. 그래서 둘 중 하나를 아무거나 지워도 상관없이 데이터는 유지되고 하나를 수정하면 다른쪽도 수정된다)
+
+주로 심볼릭 링크 파일을 많이 만들고 하드 링크는 거의 쓸 일이 없다
+
+
+심볼릭 링크 만드는 법
+ln -s test1.txt test1.ln
+
+
+하드 링크 만드는 법
+ln test1.txt testln.txt
+
+
+
+
+<링크 파일 이용해서 실행파일 리졸빙 하는 법>
+
+
+home/계정/bin		(~)계정/bin은 폴더가 없어도 $PATH에 기본 등록되어 있다
+
+계정@ubuntu:~/bin$ ln -s ~/download/jdk1.8.0/bin/java java	심볼릭 링크 파일 생성
+계정@ubuntu:~/bin$ ln -s ~/download/jdk1.8.0/bin/javac javac	심볼릭 링크 파일 생성
+
+이제 아무 디렉토리에서나 java -version, 자바컴파일 등의 명령어를 사용할 수 있다
+
+workspace 디렉토리와 java 파일을 만들어 javac hello.java, java hello 명령어를 사용해 테스트 해본다
+
+단 현재 링크파일을 홈계정의 bin 폴더에 넣어놓은 상태이므로 다른 계정은 jdk를 리졸빙 할 수 없다
+다른 사용자 계정과 공동으로 사용하려면 window에서 환경변수를 등록했던 것과 같이 사용자 환경변수가 아닌
+시스템 환경변수에 등록해줘야 한다
+
+
+
+
+
+<사용자 관리하기>
+
+
+고전적인 사용자 관리 명령어 : 홈디렉토리 수동생성
+
+useradd - 사용자 추가
+usermod - 사용자 변경
+userdel - 사용자 삭제
+
+
+dragon 사용자 추가하기
+
+$useradd dragon
+dragon 사용자 추가
+
+$cat /etc/passwd 또는 tail -n2 /etc/passwd
+>> dragon:x:1001:1001::/home/dragon
+사용자아이디:x:사용자식별자:그룹식별자::기본홈디렉토리
+
+$sudo passwd dragon
+패스워드 지정
+
+$sudo mkdir /home/dragon
+홈디렉토리 만들어주기 (안만들면 로그인 했을 때 홈디렉토리가 없어 프롬프트 기본설정이 사라진다)
+
+Permission dinied 라고 뜨면 sudo 관리자 권한으로 명령하면 된다
+
+
+
+기타) 그룹 보기
+
+cat /etc/group
+그룹 목록을 볼 수 있다
+
+groups dragon
+dragon이 포함된 group 목록을 볼 수 있다
+
+
+
+
+<홈 디렉토리 생성과 소유권 변경하기>
+
+
+$sudo mkdir /home/dragon
+
+홈 디렉토리를 생성 후 ls -l 을 해보면
+>> drwxr-xr-x 3 root root bytes date dragon
+sudo로 만들었기 때문에 관리자 계정 root가 소유자로 나온다
+소유권을 변경해야 파일 등을 생성할 수 있다
+
+
+소유권 변경하기
+
+~$sudo chown dragon ../dragon		superuser do change owner dragon /home/dragon
+~$ls -l ../
+>> drwxr-xr-x 3 dragon root bytes date dragon
+
+
+소유자, 소유자 그룹 한꺼번에 변경하기
+
+~$sudo chown dragon:dragon ../dragon		superuser do change owner dragon:dragon /home/dragon
+~$ls -l ../
+>> drwxr-xr-x 3 dragon dragon bytes date dragon
+
+
+홈 디렉토리에 dragon 계정으로 파일이 잘 만들어지는지 확인
+
+
+
+
+<사용자를 추가하는 스크립트 파일 생성>
+
+
+nano adduser		편집기로 adduser 파일 만들고 편집 실행
+
+useradd testuser
+tail -n2 /etc/passwd
+mkdir /home/testuser
+chown testuser:testuser /home/testuser
+echo "testuser user added"
+
+명령어로 하나하나 쳤던 것을 전부 작성해준다
+저장하고 편집기 종료
+
+
+이제 실행 할 수 있도록 권한 변경을 해줘야한다
+
+현재 파일 상태 ( ls -l )
+>> -rw-rw-r-- adduser
+
+
+
+
+<파일과 디렉토리 권한 변경>
+
+
+'[ugoa]*([-+=]([rwxXst]*|[ugo]))+|[-+=][0-7]+'
+
+
+-rwxr-xr-x text.txt
+(왼쪽부터 첫번째 - 제외 3비트씩 묶는다)
+(현재 상태 111 101 101)
+-	타입
+rwx	소유권자의 권한
+r-x	소유그룹의 권한
+r-x	Other 기타 다른 사람의 권한
+
+
+r w x	(권한은 3비트로 이루어져 있다)
+1 0 0	Read
+0 1 0	Write
+0 0 1	eXecute
+
+
+권한 변경 방법
+
+$ chmod 644 test.txt		2진수를 10진수로 바꿔 설정한다 (110 100 100, -rw-r--r--)
+$ chmod u=w test.txt		user에 write만 설정
+$ chmod u+s test.txt		user execute bit에 특수권한 SetUID 설정
+$ chmod u-s test.txt		user execute bit에 특수권한 SetUID 삭제
+$ chmod o -rwx test.txt		other 유저에게 rwx 권한 삭제
+$ chmod go+r test.txt		group과 other 유저에게 read 권한 부여
+$ chmod a+rwx test.txt		모든 유저에게 rwx 권한 부여
+
+a = all, u = user, g = group, o = other, s = set?id (특수권한)
+특수 권한에 대한 자세한 설명은 이분이 잘 설명해주심
+https://wogh8732.tistory.com/74
+참고로 현재 로그인한 계정의 uid, gid 등을 보려면 id 명령어를 쳐보면 된다
+
+
+Unix 에서는 shell 자체 명령어에 adduser를 갖고있으므로 사용하려면 ./adduser 를 해줘야 한다
+whereis adduser		adduser 명령어가 존재하는 위치
+which adduser		현재 사용자가 사용(리솔빙)하게 되는 adduser의 위치
+환경변수는 시스템 환경변수가 아니라면 계정마다 다르다
+
+ex)
+sudo ./adduser
+
+
+이제 매번 경로를 적는 것과 testuser로만 user를 생성할 수는 없으니
+환경변수를 설정하고 스크립트 파일에 인자를 추가해줘야 한다
+
+
+
+
+<인자를 이용한 스크립트 파일>
+
+
+adduser를 사용자 환경변수가 지정된 home/계정/bin 폴더로 넣어주면 경로는 안적어줘도 된다
+(home/계정/bin $PATH 우선순위가 가장 높기 때문에 다른 adduser는 실행되지 않는다)
+(하지만 sudo를 쓰게 되면 관리자 권한이 되기 때문에 sbin 폴더의 미리 정의된 배치파일인 adduser가 실행된다)
+mv ./adduser ~/bin
+cd ~/bin; ls
+
+
+인자를 넣을 수 있도록 파일을 변경
+nano adduser
+
+useradd $1
+tail -n2 /etc/passwd
+mkdir /home/$1
+chown $1:$1 /home/$1
+echo "$1 user added"
+
+저장
+
+
+sudo adduser bbb
+이렇게 하게 되면 superuser의 adduser를 사용하게 되므로 (sudo which adduser)
+sudo /home/계정/bin/adduser bbb
+직접만든 adduser 파일의 경로를 명시화한다
+
+
+제대로 추가되었는지 확인
+ls /home
+
+
+
+
+<향상된 사용자 추가방법>
+
+
+(# 는 superuser, root 권한을 뜻한다)
+
+
+사용자 추가 옵션들
+
+-c		사용자 설명 설정
+-s		기본 쉘 설정
+-r		UID 설정(500 이하로)
+-d		사용자 디렉토리 설정
+-g		기본 그룹
+-G		추가 그룹
+
+# useradd -d /home/username -s /bin/bash username
+# useradd -r number -c "..." -g groupname -G groupname
+-d /home/username -s /bin/bash username
+
+# useradd dragon
+# passwd dragon
+
+
+향상된 사용자 추가 명령어
+
+# adduser dragon
+# passwd dragon
+
+
+사용자 제거하기
+
+# userdel -r username
+# deluser username
+
+
+
+
+<프롬프트 변경하기>
+
+
+Linux(Unix)의 기본 프롬프트 설정은 작업하는 디렉토리가 깊어질수록
+프롬프트 명령창의 길이가 달나라로 가버리기 때문에 
+사용자 프롬프트 창의 포맷을 변경을 하는 법을 알아두면 좋다
+
+
+사용자 프롬프트 설정하기
+
+
+프롬프트 스트링(PS1) 출력하기
+
+username@username-server:~$ echo $PS1
+>> \[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\u@\h:\w\$
+
+
+프롬프트 스트링(PS1) 변경하기
+
+username@username-server:~$ PS1="username : ";
+username : ls
+>> aa bb cc dd
+
+
+프롬프트 스트링의 이스케이프 문자
+
+\H		the hostname
+\h		the hostname up to the first '.'
+\d		the date
+\n		new line
+\r		carriage return
+\t		the current time in 24-hour
+\T		the current time in 12-hour
+
+참고 사이트 : https://tldp.org/HOWTO/Bash-Prompt-HOWTO/bash-prompt-escape-sequences.html
+
+
+프롬프트 변경 후 프로필에 저장하지 않을 경우 종료 후 재진입하면 프롬프트 기본설정으로 돌아온다
+
+
+
+
+<출력 색상 변경하기>
+
+
+putty 같은 흰색 테마의 클라이언트로 원격접속해서 사용할 때는 그나마 괜찮지만
+일반적인 콘솔로 Linux에서 작업하면 시커먼게 존내 안보이는 상태가 되버리기 때문에
+가시성을 위해 출력색상을 변경하는 법을 알아두면 좋다
+
+
+색상 변경 예
+
+~$ LS_COLORS="di=0;33"
+
+
+파일 종류명
+
+di = directory
+fi = file
+ln = symbolic link
+pi = fifo file
+so = socket file
+bd = block (buffered) special file
+cd = character (unbuffered) special file
+or = symbolic link pointing to a non-existent file (orphan)
+mi = non-existent file pointed to by a symbolic link (visible when you type ls -l)
+ex = file which is executable (ie. has 'x' set in permissions)
+
+
+텍스트 형식
+
+0 = default color
+1 = bold
+4 = underlined
+5 = flashing test
+7 = reverse field
+
+
+텍스트 색상표
+
+참고 사이트 https://linuxhint.com/ls_colors_bash/
+
+
+출력 색상 변경 후 프로필에 저장하지 않을 경우 종료 후 재진입하면 기본설정으로 돌아온다
+
+
+
+
+<명령어 별칭 만들어 사용하기>
+
+
+자주 사용하는 ls 명령어도 별칭이다
+
+type ls
+>> ls is aliased to 'ls --color=auto'
+
+type ll
+>> ll is aliased to 'ls -alF'
+
+
+별칭 만드는 법
+
+alias 별칭='명령어 -옵션'
+
+ex)
+alias ls='ls --color=auto'
+
+
+별칭 생성 또는 변경 후 프로필에 저장하지 않을 경우 종료 후 재진입하면 기본설정으로 돌아온다
+
+
+
+
+<컴퓨터 켜고 끄기와 Run Level>
+
+
+리눅스 부팅 순서
+
+1) BIOS (Basic Input Output System)
+2) Master Boot Record (MBR)
+3) LILO or GRUB
+4) Kernel
+5) init : process number i(PID=1)
+-/linuxrc : load modules / initialize devices / exits
+-/sbin/init
+	-/etc/inittab : run boot scripts
+		-/etc/init.d/rcS
+			-/etc/tcS.d/S* scripts
+			-/etc/rc.boot/*
+6) Run Levels
+
+
+
+리눅스 Run Levels
+
+
+
+ps -p 1 ef	1번 프로세스 목록 확인
+/etc/rc		런 레벨에 따라 실행되는 프로그램들 위치
+(rc0.d ~ rcS.d 위 스샷의 런 레벨에 따라 디렉토리로 묶여있음) 
+
+init number	명령어를 통해 해당하는 디렉토리의 스크립트들을 실행시켜줄 수 있다
+
+
+
+컴퓨터 시작과 종료 명령어
+
+
+종료 방법
+
+$poweroff	사용자가 자신 뿐일 경우 메세지 없이 바로 종료
+$shutdown	여러 사용자가 사용할 경우 메세지를 날리는 방식으로 종료해줄 수 있다
+$halt		종료
+$init 0		종료
+
+halt, reboot, poweroff, telinit, and shutdown are all one program
+
+
+shutdown 옵션
+
+-H --halt		Halt the machine
+-P --poweroff	Power-off the machine
+-r --reboot	Reboot the machine
+-h		Equivalent to --poweroff, overrridden by --halt
+-k		Don't halt/power-off/reboot, just send warnings
+--no-wall		Don't send wall message before halt/power-off/reboot
+
+
+재시작
+
+$reboot		다른 사용자가 사용중일 때는 root 계정으로 강제 재부팅
+$shutdown
+$init 6
+
+
+
+
+<프로필과 환경변수를 설정하는 방법>
+
+
+초기화 스크립트 작성 위치
+
+1) BIOS (Basic Input Output System)
+2) Master Boot Record (MBR)
+3) LILO or GRUB
+4) Kernel
+5) init : process number i(PID=1)
+-/linuxrc : load modules / initialize devices / exits
+-/sbin/init
+	-/etc/inittab : run boot scripts
+		-/etc/init.d/rcS
+			-/etc/tcS.d/S* scripts
+			-/etc/rc.boot/*
+6) Run Levels
+
+
+
+Shell 스크립트 실행 순서
+
+로그인 할 때 실행되는 스크립트 RC(Run Commands)
+
+Bash 시작 스크립트
+>
+로그인 쉘 /bin/login	first user log in runlevel #3  /etc/profile(모든 사용자 설정 파일) [/etc/bash.bashrc, /etc/profile.d]
+,
+~/.profile(개인 사용자 설정 파일)
+>
+비 로그인 쉘 /bin/bash or /bin/su or teminal	virtual terminal run	  /etc/bash/bashrc, ~/.bashrc
+>
+Bash 로그아웃 스크립트	~/.bash_logout
+
+
+
+모든 사용자 로그인 프로필 설정 방법1)
+
+cd /etc			profile 모든사용자 설정 파일 위치
+
+sudo nano /etc/profile	코드 최하단에 프롬프트 설정, 컬러 등 명령어 추가 한 뒤 저장
+
+source 명령어를 이용해 profile을 적용하거나 재로그인 해야 적용됨
+
+모든 사용자 계정에 적용된 것을 확인한다
+
+
+
+모든 사용자 로그인 프로필 설정 방법2)
+
+cd /etc/profile.d		디렉토리로 이동
+	
+sudo nano alias.sh		원하는 .sh 파일을 만들어 설정 명령어를 작성
+
+재로그인 후  적용된 것 확인
+
+
+
+개인 사용자 로그인 프로필 설정 방법)
+
+cd ~; ls -a		개인 홈 디렉토리 이동, 숨김 파일 및 디렉토리 확인 (.profile 숨겨져 있음)
+nano .profile		코드 최하단에 명령어 추가한 뒤 저장
+
+(미리 작성 된 코드 중 $PATH 관련 코드 제어문도 확인할 수 있다)
+
+재로그인 후 개인 사용자 계정에만 적용된 것을 확인한다
+
+
+
+Linux 데스크탑을 통해 DOS 창을 띄울 때는 비 로그인 쉘로 실행되는데 기존의 로그인 설정을 바탕으로
+.bashrc 설정 파일만 실행된다
+로그아웃 할 때마다 사용하고 싶은 스크립트 명령이 있다면 ~/.bash_logout에 작성해주면 된다
+
+
+
+환경 변수를 설정할 수 있는 파일들
+
+
+/etc/environment
+
+
+PAM (Pluggable Authentication Modules)
+
+
+/etc/pam.d$		PAM을 사용하는 인증 서비스를 모아둔 곳
+
+/etc/pam.d$ cat login
+>> reading this file *in addition to /etc/environment* does not hurt
+session	required	pam_env.so readenv=1 envfile=/etc/default/locale
+
+pam 모듈을 사용하는 인증 서비스는 environment 폴더에서 읽어 들인다는 걸 알 수 있다
+
+
+cat /etc/environment
+>> PATH="/~:/~:/~"
+
+environment 파일의 내부를 보면 환경 변수가 작성되어 있다
+
+
+
+
+<JDK 전역화 하기 (시스템 환경변수 설정하기)>
+
+
+시스템 수준의 JDK 설치하기
+
+
+sudo mkdir /usr/local/java
+sudo mv ~/download/jdk1.8.0/ /usr/local/java/
+
+현재 개인 사용자의 홈디렉토리에(~) JDK 파일이 위치해 있다면
+먼저 압축 푼 JDK 폴더를 windows의 program files와 같은 사용자들이 공용으로 사용하는 폴더로 옮겨준다
+
+
+sudo nano /etc/environment
+
+파일 내 PATH 문자열 끝에 JDK :실행경로를 추가해준다
+
+PATH="/~:/usr/local/java/bin"
+
+
+cat /etc/environment
+
+파일에는 잘 등록되어도 재로그인 하지 않으면 echo $PATH에 보이지 않는다
+재로그인 하는 게 번거롭다면 source 명령어를 사용한다
+
+source /etc/environment
+
+단 souce 사용 시 environment만 읽어오므로 Run Level 스크립트 코드에 따라 절차적으로 진행되어야 할
+개인 사용자 설정은 읽어오지 않으므로 홈디렉토리 환경변수도 기존 절차에 따라 추가적으로 읽어와야 한다
+
+source ~/.profile
+
+깔끔하게 하려면 그냥 재로그인 하면 됨
+
+
+echo $PATH
+java -version
+
+잘 적용되었는지 확인
++ 다른 계정에서도 잘 사용되는지 확인
+
+
+나중에 Tomcat 등의 WAS를 사용할 때는 JDK 폴더의 rwxs권한과 소유권자, 소유권그룹을 설정해줘야 한다
+
+
+
+
+<Debian 설치 패키지 관리자>
+
+
+dpkg : package manager for Debian
+
+윈도우의 msi 같은 것을 생각하면 된다
+설치 후 환경 설정까지 도와줌
+배포본을 어떤 것을 사용하느냐에 따라 패키지 관리자는 다르고 당연히 확장자도 다름
+
+
+
+패키지 설치
+
+$ dpkg -i packagename.deb
+
+우분투 패키지 사이트 : https://packages.ubuntu.com/
+
+Browse through the lists of packages: 의 리스트는 Ubuntu 버전명들이다
+18.04LTS처럼 버전을 숫자로 표기하는 경우도 있고, trusty, xenial 식으로 연대표처럼 코드명으로 나눈 경우도 있음
+
+
+
+tree 설치해보기
+
+디렉토리 내부를 tree 구조로 보기 편하게 만들어주는 패키지
+
+패키지 사이트 Search the contents of packages에서 tree 검색
+file이 /user/bin/tree 인 것을 클릭해서 패키지로 들어간다
+cpu Architecture amd64 클릭
+Asia 쪽 미러사이트 주소 복사
+
+$wget 주소붙여넣기
+
+cd ~/download/
+sudo dpkg -i 다운받은설치파일.deb
+
+tree		tree 구조로 디렉토리 및 파일 보기
+
+
+
+자주쓰는 옵션
+
+dpkg -?		도움말 보기
+dpkg -l		현재 설치된 패키지 목록 보기 (dpkg -l packagename packagename이 설치되어있는지 확인)
+dpkg -L		해당 패키지가 어디에 설치되어있는지 확인
+dpkg -i		패키지 설치
+dpkg -r		패키지 실행파일만 삭제
+dpkg -P		패키지 설정파일까지 모두 삭제
+
+
+JDK 설치에 관해
+oracle 사이트에서 deb 파일도 지원하고 있으므로 JDK를 받아서 사용하면 된다
+(없으면 rpm 파일을 받아서 에일리언 툴을 써서 패키지 전환을 하거나 tar.gz 압축 버전을 받아서 풀어써야 한다)
+또는 APT를 사용해서 편하게 설치한다
+
+
+
+
+<향상된 패키지 관리 도구 APT를 이용한 OpenJDK 설치하기>
+
+
+소프트웨어 설치 with APT (Advanced Packaging Tool)
+
+
+우분투 패키지 저장소라는 원격 저장소에서 왠만한 툴들을 저장하고 있어서 따로 찾아올 필요가 없다
+
+
+/etc/apt/sources.list	저장소 정보 목록
+
+apt-get update		저장소 패키지 정보를 업데이트
+apt-get dist-update	의존성 검사를 통한 목록 갱신
+apt-cache search X		패키지 검색
+apt-cache show X		패키지 정보 보기
+apt-get install X		패키지 설치
+apt-get remove X		패키지 실행파일만 제거
+apt-get purge X		패키지 설정파일까지 모두 제거
+
+
+apt-cache pkgnames | less		설치할 수 있는 패키지 목록 보기
+apt-cache search jdk | grep jdk	jdk 검색
+apt-cache pkgnames | grep jdk	뒤에 붙는 설명을 보기 싫을 때 사용
+sudo apt-get install openjdk-11-jdk	jdk11버전 설치 (jdk8 버전은 따로 정보를 추가해줘야 한다)
+
+
+APT cache에 JDK8 버전이 없다면 PPA를 이용해 설치하자
+
+
+
+
+<PPA와 update-java-alternatives를 이용한 JDK 설치하기>
+
+
+PPA (Personal Package Archive) 를 이용한 소프트웨어 설치
+
+
+ppa는 ubuntu를 제공하는 canonical이 함께 운영하는 플랫폼이다
+
+https://launchpad.net/
+개인화된 우분투 패키지를 호스팅도 해주고 사용자가 직접 작성한 패키지를 업로드해서 사용하거나 할 수 있다
+이곳에서 원하는 패키지의 주소를 가져온다
+ 
+
+openjdk ppa ubuntu 구글링
+
+Open JDK 8버전 ppa
+검색 결과 : https://launchpad.net/~openjdk-r/+archive/ubuntu/ppa
+
+
+사이트에서 하라는 대로 그대로 따라 쳐준다
+
+sudo add-apt-repository ppa:openjdk-r/ppa	PPA 주소 추가
+sudo apt-get update	apt resouces 업데이트	
+apt-cache search jdk | grep jdk	제대로 업데이트 되었는지 확인
+sudo apt-get install openjdk-8-jdk	JDK8 버전 설치
+
+
+openJDK 8버전 설치 완료
+
+
+java -version 이나 whereis java 로 어디에 있는 어떤 버전을 사용 중인지 확인해본다
+
+
+
+Oracle JDK 8버전 ppa (라이선스 있음)
+https://launchpad.net/~webupd8team/+archive/ubuntu/java
+
+
+
+
+<update-java-alternatives를 이용해 JDK 버전 선택적으로 사용하기>
+
+
+update-java-alternatives -l				설치된 java 목록 보기
+sudo update-java-alternatives -s packagename		packagename으로 jdk 변경
