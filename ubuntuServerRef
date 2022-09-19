@@ -1066,3 +1066,6 @@ https://launchpad.net/~webupd8team/+archive/ubuntu/java
 
 update-java-alternatives -l				설치된 java 목록 보기
 sudo update-java-alternatives -s packagename		packagename으로 jdk 변경
+
+
+
